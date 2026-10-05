@@ -1,5 +1,7 @@
 #!/bin/bash
 # Merrycoco Lab 배포 — GHCR 이미지 pull 후 컨테이너 교체.
+#   위치:   /home/eden_lee/webproject/merrycoco-lab/  —  deploy.sh + .env.production **둘만** 둔다.
+#           전체 체크아웃을 두지 않는다(merrycoco-app·merrycoco-admin 도 같은 방식).
 #   비밀값: 서버의 .env.production (Git 에 없다)
 #   앞단:   브라우저 → nginx(443, Let's Encrypt) → 127.0.0.1:3046 → 컨테이너 3000
 #           (클라우드플레어 프록시를 쓰지 않는다 — DNS only)
@@ -26,8 +28,8 @@ if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
   #    `coder-keril` 이다. 워크플로 쪽은 `docker/metadata-action` 이 알아서 소문자로 바꾸므로
   #    양쪽이 같은 이미지를 가리킨다.
   OWNER=coder-keril
-  REPO=seller-hub
-  CONTAINER_NAME=seller-hub
+  REPO=seller-hub         # GitHub 저장소 이름 = 이미지 이름
+  CONTAINER_NAME=merrycoco-lab
   HOST_PORT=3046          # 127.0.0.1:3046 → 컨테이너 3000
                           # (merrycoco app 3006 · admin 3016 · ezoffice 3026 · ezops 3036 과 분리)
 

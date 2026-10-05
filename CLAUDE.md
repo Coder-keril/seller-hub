@@ -257,8 +257,9 @@ git push main  →  GitHub Actions   : buildx → ghcr.io/<owner>/seller-hub:{la
 
 운영 서버는 `mc-prod`(`~/.ssh/config`, 34.158.196.179 · `ez-office-merrycoco`)다.
 같은 서버에 merrycoco-app(3006) · merrycoco-admin(3016) 컨테이너가 돌고 있다.
-배포 체크아웃은 전체 git 클론이 아니라 **`~/webproject/<앱>/` 에 `deploy.sh` + `.env.production`
-두 개만** 둔다(merrycoco-admin 이 그 방식이다).
+배포 위치는 **`~/webproject/merrycoco-lab/`** 이고, 전체 git 클론이 아니라 **`deploy.sh` +
+`.env.production` 두 개만** 둔다(merrycoco-app·merrycoco-admin 도 같은 방식이다).
+컨테이너 이름은 **`merrycoco-lab`**, 이미지는 **`ghcr.io/coder-keril/seller-hub`**(저장소 이름)다.
 
 **클라우드플레어 프록시를 쓰지 않는다**(DNS only, lab → 34.158.196.179). 그래서
 `/etc/nginx/ssl/merrycoco.co.kr-origin.*`(Cloudflare Origin 인증서, admin 이 쓰는 것)은
