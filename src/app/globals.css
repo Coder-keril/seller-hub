@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+/* 판매자 업무 화면이라 라이트 전용으로 고정한다 — OS 다크모드에서도 숫자 대비를 유지한다. */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+}
+
+/* 명시적 클래스가 없을 때 흰 배경에 흰 글씨가 되는 것을 막는다. */
+input,
+textarea,
+select {
+  color: #111827;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* 금액·수량은 자리수를 맞춰 읽는다. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

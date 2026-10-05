@@ -1,0 +1,52 @@
+# 이미지 빌드 → GHCR 푸시. **배포는 하지 않는다** — 서버에서 `./deploy.sh` 를 직접 실행한다.
+#
+# 태그는 `latest` 와 커밋 SHA 둘. SHA 태그가 있어야 롤백이 "태그 하나 바꾸기"로 끝난다.
+# `docker/metadata-action` 이 OCI 라벨(revision·created)을 박아 주는데, `deploy.sh` 가 그것을
+# 찍어서 **방금 푸시한 커밋이 맞는지 눈으로 대조**할 수 있게 한다.
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

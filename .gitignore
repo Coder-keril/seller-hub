@@ -1,0 +1,15 @@
+node_modules/
+.venv/
+.env
+.env.development
+.env.production
+*.log
+
+# Next
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# graphify 산출물 (재생성 가능)
+graphify-out/

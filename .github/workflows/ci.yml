@@ -1,0 +1,44 @@
+# 품질 게이트 — lint · typecheck · test · 스키마 검증.
+#
+# **이미지 빌드와 겹치지 않는다.** `.dockerignore` 가 `scripts/`·`sql/` 을 빼므로 이미지 안의
+# `next build` 는 그 둘을 타입체크하지도, `npm run check` 를 돌리지도 않는다. 그래서
+# 스크립트 타입 오류와 스키마 불변식은 **반드시 이미지 밖(여기)에서** 잡아야 한다.
+#
+# ⚠️ 이 워크플로는 이미지 빌드보다 **훨씬 빨리 끝난다.** 초록불을 보고 배포하면 이미지는
+#    아직 빌드 중일 수 있다 — 배포 전에는 `Build and Push Docker Image` 쪽을 확인한다.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # DB 없이 pglite(WASM Postgres)로 전체 DDL 을 재생하고 불변식을 검증한다.
+      # 비밀값이 필요 없으므로 PR 에서도 돈다.
+      - name: Schema check
+        run: npm run check
