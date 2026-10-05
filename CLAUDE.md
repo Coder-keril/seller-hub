@@ -18,6 +18,20 @@ npm run db:apply sql/00N_x.sql   # Supabase 에 마이그레이션 적용
 npm run seed:user -- --email me@x.com --name 홍길동   # 로그인 계정 생성/비밀번호 재설정
 ```
 
+⚠️ **`package-lock.json` 은 CI 와 같은 npm 으로 갱신한다.** `npm ci` 는 락파일에 적힌 것만
+설치하고, **락파일을 만든 npm 보다 CI 의 npm 이 새로우면 즉시 실패한다** — 설치를 시작하지도
+못하고 끝난다. 2026-10-06 에 로컬 npm 11.6.2 로 만든 락파일을 CI·Docker 의 11.21.0 이
+`Missing: @emnapi/runtime@… from lock file` 로 거부해 Actions 가 3초만에 죽었다.
+
+```bash
+npm -v                                      # CI(node:24 계열)가 쓰는 버전과 같아야 한다
+npx npm@<CI버전> install --package-lock-only  # 어긋났을 때 락파일만 갱신
+npx npm@<CI버전> ci                           # 갱신 후 반드시 확인
+```
+
+증상이 특이하다 — **로컬에서는 `npm ci` 가 멀쩡히 된다**(캐시를 비워도 된다). 그래서 CI 만
+깨지면 패키지가 아니라 **npm 버전 차이**를 먼저 본다.
+
 스크립트는 `npx tsx scripts/<name>.ts` (TS) 또는 `node scripts/<name>.mjs` (JS) 로 돌린다.
 전부 `loadEnv()` (`scripts/pgx.mjs`) 로 `.env.development` 를 읽는다.
 
@@ -273,7 +287,7 @@ webroot(`/var/www/certbot`) 로 certbot.timer 가 자동 처리한다. `certbot 
 
 | 파일 | 역할 |
 |---|---|
-| `Dockerfile` | node:24-alpine 3단. dev 의존성까지 설치해 빌드하고 운영에는 standalone 만 남긴다 |
+| `Dockerfile` | **node:24-slim**(debian) 3단. dev 의존성까지 설치해 빌드하고 운영에는 standalone 만 남긴다 |
 | `.dockerignore` | `scripts/`·`sql/`·`docs/`·`.env*` 제외 — 이미지에 비밀도 MSSQL 코드도 넣지 않는다 |
 | `.github/workflows/build-and-push-image.yml` | 이미지 빌드·푸시. **배포는 하지 않는다** |
 | `.github/workflows/ci.yml` | lint·typecheck·test·`npm run check` — 이미지 밖에서만 돌 수 있는 검사다 |
